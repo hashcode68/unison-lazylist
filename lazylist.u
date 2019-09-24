@@ -10,8 +10,6 @@ use List List
 use F Nil Cons
 use Fix Fix
 use .builtin Optional
-use .builtin Some
-use .builtin None
 use .builtin Int
 
 
