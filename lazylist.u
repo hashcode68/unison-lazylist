@@ -47,13 +47,10 @@ namespace lazylist where
     gotake n xs rs = 
       if n == (toInt 0)
         then rs
-        else let
-                hd = head xs
-                rs_ = case hd of
-                        .builtin.Optional.Some n -> .builtin.List.cons n rs
-                        .builtin.Optional.None -> rs
-                xs_ = tail xs
-                gotake (n - (toInt 1)) xs_ rs_
+        else rs_ = case head xs of
+                    .builtin.Optional.Some n -> .builtin.List.cons n rs
+                    .builtin.Optional.None -> rs
+             gotake (n - (toInt 1)) (tail xs) rs_
 
 
 > ls = 1 :| List (Fix Nil)
@@ -61,4 +58,4 @@ namespace lazylist where
 > ls'' = 3 :| ls'
 > h = head ls''
 > t = tail ls''
-> take (toInt 5) ls''
+> take (toInt 3) ls''
