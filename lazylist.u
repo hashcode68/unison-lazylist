@@ -1,0 +1,66 @@
+-- TODO move type definitions eventually inside namespace
+type Fix f = Fix (f (Fix f))
+
+type F a r = Nil | Cons a (() -> r)
+
+type List a = List (Fix (F a))
+
+-- TODO ? move use-clauses eventually inside namespace
+use List List
+use F Nil Cons
+use Fix Fix
+use .builtin Optional
+use .builtin Some
+use .builtin None
+use .builtin Int
+
+
+namespace lazylist where
+
+    unwrap : List a -> Fix (F a)
+    unwrap l =
+        case l of
+            List f -> f
+
+    -- TODO define wrap ?
+
+    (:|) : a -> List a -> List a
+    (:|) x xs =
+        xs_ = unwrap xs
+        List (Fix (Cons x 'xs_))
+
+    head : List a -> Optional a
+    head xs =
+        case unwrap xs of
+            Fix (Cons x ts) -> Some x
+            Fix Nil -> None
+
+    tail : List a -> List a
+    tail xs =
+        case unwrap xs of
+            Fix (Cons x ts) -> List !ts
+            Fix Nil -> List (Fix Nil)
+
+    take : Int -> List a -> .builtin.List a
+    take n xs =
+      gotake n xs []
+
+    gotake : Int -> List a -> .builtin.List a -> .builtin.List a
+    gotake n xs rs = 
+      if n == (toInt 0)
+        then rs
+        else let
+                hd = head xs
+                rs_ = case hd of
+                        .builtin.Optional.Some n -> .builtin.List.cons n rs
+                        .builtin.Optional.None -> rs
+                xs_ = tail xs
+                gotake (n - (toInt 1)) xs_ rs_
+
+
+> ls = 1 :| List (Fix Nil)
+> ls' = 2 :| ls
+> ls'' = 3 :| ls'
+> h = head ls''
+> t = tail ls''
+> take (toInt 5) ls''
